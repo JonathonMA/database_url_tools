@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'database_url_tools/psql'
+require 'tempfile'
+
+uri = ARGV.shift or abort "Usage: dut_psql <db_url>"
+
+config = DatabaseUrlTools::PgConfig.new(uri)
+
+tools = DatabaseUrlTools::Psql.new(config.config)
+pgpass = Tempfile.new("pgpass")
+pgpass.write(tools.pgpass)
+pgpass.flush
+ENV['PGPASSFILE'] = pgpass.path
+system *tools.command
+pgpass.close
